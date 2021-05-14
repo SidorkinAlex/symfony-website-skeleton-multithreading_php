@@ -7,10 +7,8 @@
  */
 namespace App\Controller;
 
-use App\DDD\Actions\AddToRecognitionList;
-use App\Service\DriverWorkerTomita;
-use App\Service\RecognitionList;
-use App\Service\Validator;
+
+use App\Service\CThread;
 use Redis;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
@@ -28,7 +26,29 @@ class Resume extends AbstractController
      */
     public function testpars(): Response
     {
-        dd('lksajdfl');
+        $paramsFromThread = 3;
+        $test = new CThread($paramsFromThread,function ($n){
+            for ($i = 0; $i<$n; $i++){
+                $pid=getmypid();
+                file_put_contents('test1.log', $i." my pid is {$pid} \n", FILE_APPEND);
+                sleep(3);
+            }
+            return 'test1';
+        });
+        $test->start();
+
+        $test2 = new CThread($paramsFromThread,function ($n){
+            for ($i = 0; $i<$n; $i++){
+                $pid=getmypid();
+                file_put_contents('test2.log', $i." my pid is {$pid} \n", FILE_APPEND);
+                sleep(3);
+            }
+            return 'test2';
+        });
+        $test2->start();
+        $result1 = $test->getCyclicalResult();
+        $result2 = $test2->getCyclicalResult();
+        dd([$result1,$result2]);
         return new Response("sadfasdf");
     }
 }
